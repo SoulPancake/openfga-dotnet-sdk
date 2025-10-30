@@ -5,7 +5,7 @@
 ### macOS / Linux
 
 ```bash
-# Run all tests for .NET 8.0
+# Run tests for .NET 8.0 framework
 make test-net8
 
 # Run tests with code coverage
@@ -47,7 +47,7 @@ dotnet test src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj \
 
 After running tests:
 - **Test Results**: `TestResults/*.trx`
-- **Coverage Report**: `TestResults/<guid>/coverage.opencover.xml`
+- **Coverage Report**: `TestResults/<timestamp-guid>/coverage.opencover.xml` (guid is auto-generated)
 
 ## Quick Example
 
