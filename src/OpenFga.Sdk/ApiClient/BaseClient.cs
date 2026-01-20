@@ -1,4 +1,5 @@
 using OpenFga.Sdk.Exceptions;
+using OpenFga.Sdk.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,19 +28,21 @@ public class ResponseWrapper<T> {
 public class BaseClient : IDisposable {
     private readonly HttpClient _httpClient;
     private bool _shouldDisposeWhenDone;
+    private readonly Metrics? _metrics;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BaseClient" /> class.
     /// </summary>
     /// <param name="configuration"></param>
     /// <param name="httpClient">Optional <see cref="HttpClient" /> to use when sending requests.</param>
+    /// <param name="metrics">Optional <see cref="Metrics" /> instance for telemetry.</param>
     /// <remarks>
     ///     If you supply a <see cref="HttpClient" /> it is your responsibility to manage its lifecycle and
     ///     dispose it when appropriate.
     ///     If you do not supply a <see cref="HttpClient" /> one will be created automatically and disposed
     ///     of when this object is disposed.
     /// </remarks>
-    public BaseClient(Configuration.Configuration configuration, HttpClient? httpClient = null) {
+    public BaseClient(Configuration.Configuration configuration, HttpClient? httpClient = null, Metrics? metrics = null) {
         _shouldDisposeWhenDone = httpClient == null;
         _httpClient = httpClient ?? new HttpClient();
         _httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -51,6 +54,8 @@ public class BaseClient : IDisposable {
                 _httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
             }
         }
+
+        _metrics = metrics;
     }
 
     /// <summary>
@@ -68,7 +73,40 @@ public class BaseClient : IDisposable {
         string? apiName = null, CancellationToken cancellationToken = default) {
         var request = requestBuilder.BuildRequest();
 
-        return await SendRequestAsync<TRes>(request, additionalHeaders, apiName, cancellationToken);
+        if (additionalHeaders != null) {
+            foreach (var header in additionalHeaders) {
+                if (header.Value != null) {
+                    request.Headers.Add(header.Key, header.Value);
+                }
+            }
+        }
+
+        var httpRequestStopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        httpRequestStopwatch.Stop();
+
+        // Record HTTP request duration metric
+        if (_metrics != null && apiName != null) {
+            _metrics.BuildForHttpRequest(apiName, response, requestBuilder, httpRequestStopwatch, 0);
+        }
+
+        try {
+            response.EnsureSuccessStatusCode();
+        }
+        catch {
+            throw await ApiException.CreateSpecificExceptionAsync(response, request, apiName).ConfigureAwait(false);
+        }
+
+        TRes responseContent = default;
+        if (response.Content != null && response.StatusCode != HttpStatusCode.NoContent) {
+            using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            if (contentStream.Length > 0) {
+                responseContent = await JsonSerializer.DeserializeAsync<TRes>(contentStream, cancellationToken: cancellationToken).ConfigureAwait(false) ??
+                                  throw new FgaError();
+            }
+        }
+
+        return new ResponseWrapper<TRes> { rawResponse = response, responseContent = responseContent };
     }
 
     // /// <summary>

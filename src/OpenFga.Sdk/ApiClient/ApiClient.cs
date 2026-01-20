@@ -31,10 +31,9 @@ public class ApiClient : IDisposable {
     public ApiClient(Configuration.Configuration configuration, HttpClient? userHttpClient = null) {
         configuration.EnsureValid();
         _configuration = configuration;
-        _baseClient = new BaseClient(configuration, userHttpClient);
-        _retryHandler = new RetryHandler(new RetryParams { MaxRetry = _configuration.MaxRetry, MinWaitInMs = _configuration.MinWaitInMs });
-
         metrics = new Metrics(_configuration);
+        _baseClient = new BaseClient(configuration, userHttpClient, metrics);
+        _retryHandler = new RetryHandler(new RetryParams { MaxRetry = _configuration.MaxRetry, MinWaitInMs = _configuration.MinWaitInMs });
 
         if (_configuration.Credentials == null) {
             return;
