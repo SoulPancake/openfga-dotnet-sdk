@@ -74,13 +74,10 @@ public class BaseClient : IDisposable {
         var request = requestBuilder.BuildRequest();
 
         if (additionalHeaders != null) {
-            foreach (var header in additionalHeaders) {
-                if (header.Value != null) {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+            foreach (var header in additionalHeaders.Where(h => h.Value != null)) {
+                request.Headers.Add(header.Key, header.Value);
             }
         }
-
         var httpRequestStopwatch = System.Diagnostics.Stopwatch.StartNew();
         var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         httpRequestStopwatch.Stop();

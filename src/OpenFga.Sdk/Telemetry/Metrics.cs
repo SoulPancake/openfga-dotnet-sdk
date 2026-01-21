@@ -112,12 +112,13 @@ public class Metrics {
     /// <param name="retryCount">The number of retries attempted (0 for the initial request).</param>
     public void BuildForHttpRequest<T>(string apiName,
         HttpResponseMessage response, RequestBuilder<T> requestBuilder, Stopwatch httpRequestDuration, int retryCount) {
-        if (_telemetryConfig?.Metrics == null || _telemetryConfig?.Metrics.Count == 0) {
+        var metrics = _telemetryConfig?.Metrics;
+        if (metrics == null || metrics.Count == 0) {
             // No point processing if all metrics are disabled
             return;
         }
 
-        if (!_telemetryConfig.Metrics.TryGetValue(TelemetryMeter.HttpRequestDuration, out var httpRequestDurationConfig)) {
+        if (!metrics.TryGetValue(TelemetryMeter.HttpRequestDuration, out var httpRequestDurationConfig)) {
             // HTTP request duration metric is not enabled
             return;
         }
