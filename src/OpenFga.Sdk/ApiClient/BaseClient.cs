@@ -59,17 +59,15 @@ public class BaseClient : IDisposable {
     /// <param name="requestBuilder"></param>
     /// <param name="additionalHeaders"></param>
     /// <param name="apiName"></param>
+    /// <param name="retryCount">Number of previous retry attempts.</param>
     /// <param name="cancellationToken"></param>
     /// <typeparam name="TReq"></typeparam>
     /// <typeparam name="TRes"></typeparam>
     /// <returns></returns>
     public async Task<ResponseWrapper<TRes>> SendRequestAsync<TReq, TRes>(RequestBuilder<TReq> requestBuilder,
         IDictionary<string, string>? additionalHeaders = null,
-        string? apiName = null, CancellationToken cancellationToken = default) {
-        var request = requestBuilder.BuildRequest();
-
-        return await SendRequestAsync<TRes>(request, additionalHeaders, apiName, cancellationToken);
-    }
+        string? apiName = null, int retryCount = 0, CancellationToken cancellationToken = default) =>
+        await SendRequestInternalAsync(requestBuilder.BuildRequest(), additionalHeaders, apiName, retryCount, cancellationToken);
 
     // /// <summary>
     // /// Handles calling the API for requests that are expected to return no content
@@ -93,6 +91,7 @@ public class BaseClient : IDisposable {
     /// <param name="request"></param>
     /// <param name="additionalHeaders"></param>
     /// <param name="apiName"></param>
+    /// <param name="retryCount">Number of previous retry attempts.</param>
     /// <param name="cancellationToken"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
@@ -100,7 +99,12 @@ public class BaseClient : IDisposable {
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<ResponseWrapper<T>> SendRequestAsync<T>(HttpRequestMessage request,
         IDictionary<string, string>? additionalHeaders = null,
-        string? apiName = null, CancellationToken cancellationToken = default) {
+        string? apiName = null, int retryCount = 0, CancellationToken cancellationToken = default) =>
+        await SendRequestInternalAsync<T>(request, additionalHeaders, apiName, retryCount, cancellationToken);
+
+    private async Task<ResponseWrapper<T>> SendRequestInternalAsync<T>(HttpRequestMessage request,
+        IDictionary<string, string>? additionalHeaders,
+        string? apiName, int retryCount, CancellationToken cancellationToken) {
         if (additionalHeaders != null) {
             foreach (var header in additionalHeaders) {
                 if (header.Value != null) {
@@ -114,7 +118,7 @@ public class BaseClient : IDisposable {
             try {
                 response.EnsureSuccessStatusCode();
             }
-            catch {
+            catch (HttpRequestException) {
                 throw await ApiException.CreateSpecificExceptionAsync(response, request, apiName).ConfigureAwait(false);
             }
 
@@ -127,7 +131,7 @@ public class BaseClient : IDisposable {
                 }
             }
 
-            return new ResponseWrapper<T> { rawResponse = response, responseContent = responseContent };
+            return new ResponseWrapper<T> { rawResponse = response, responseContent = responseContent, retryCount = retryCount };
         }
     }
 
