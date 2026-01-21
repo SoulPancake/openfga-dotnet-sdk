@@ -176,9 +176,6 @@ public class ApiClient : IDisposable {
 
                 var response = await retryable(attemptCount);
 
-                response.retryCount =
-                    requestCount - 1; // OTEL spec specifies that the original request is not included in the count
-
                 return response;
             }
             catch (FgaApiError err) when (err is FgaApiRateLimitExceededError || err.ShouldRetry) {

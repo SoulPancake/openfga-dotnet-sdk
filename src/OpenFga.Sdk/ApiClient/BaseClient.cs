@@ -59,6 +59,7 @@ public class BaseClient : IDisposable {
     /// <param name="requestBuilder"></param>
     /// <param name="additionalHeaders"></param>
     /// <param name="apiName"></param>
+    /// <param name="retryCount">Number of previous retry attempts.</param>
     /// <param name="cancellationToken"></param>
     /// <typeparam name="TReq"></typeparam>
     /// <typeparam name="TRes"></typeparam>
@@ -90,6 +91,7 @@ public class BaseClient : IDisposable {
     /// <param name="request"></param>
     /// <param name="additionalHeaders"></param>
     /// <param name="apiName"></param>
+    /// <param name="retryCount">Number of previous retry attempts.</param>
     /// <param name="cancellationToken"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
