@@ -1,0 +1,108 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      bump-type:
+        description: 'Version bump type (auto/patch/minor/major/explicit)'
+        required: false
+        type: choice
+        default: 'auto'
+        options: [auto, patch, minor, major, explicit]
+      release-version:
+        description: 'Explicit version (e.g. 1.2.3). Only used when bump-type is explicit.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.event.head_commit.message, 'chore: release') ||
+      startsWith(github.event.head_commit.message, 'chore(main): release')
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Generate token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Compute release-as
+        id: compute-release-as
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          BUMP="${{ inputs.bump-type }}"
+          if [[ "$BUMP" == "patch" || "$BUMP" == "minor" || "$BUMP" == "major" ]]; then
+            CURRENT=$(jq -r '.["."]' .release-please-manifest.json | cut -d'-' -f1)
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            if [[ "$BUMP" == "major" ]]; then NEXT="$((MAJOR+1)).0.0"
+            elif [[ "$BUMP" == "minor" ]]; then NEXT="${MAJOR}.$((MINOR+1)).0"
+            else NEXT="${MAJOR}.${MINOR}.$((PATCH+1))"
+            fi
+            echo "value=$NEXT" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push Release-As commit
+        if: >-
+          github.event_name == 'workflow_dispatch' && (
+          (inputs.bump-type == 'explicit' && inputs.release-version != '') ||
+          inputs.bump-type == 'patch' ||
+          inputs.bump-type == 'minor' ||
+          inputs.bump-type == 'major')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ "${{ inputs.bump-type }}" == "explicit" ]]; then
+            VERSION="${{ inputs.release-version }}"
+          else
+            VERSION="${{ steps.compute-release-as.outputs.value }}"
+          fi
+          git commit --allow-empty \
+            -m "chore: release ${VERSION}" \
+            -m "Release-As: ${VERSION}"
+          git push
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  post-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Post-release summary
+        run: |
+          echo "### Release ${{ needs.release-please.outputs.tag_name }} published" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tag \`${{ needs.release-please.outputs.tag_name }}\` is now available." >> "$GITHUB_STEP_SUMMARY"

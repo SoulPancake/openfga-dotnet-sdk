@@ -1,0 +1,14 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "extra-files": [
+        "src/OpenFga.Sdk/Constants/FgaConstants.cs",
+        "src/OpenFga.Sdk/OpenFga.Sdk.csproj",
+        "example/Example1/Example1.csproj"
+      ]
+    }
+  }
+}
