@@ -31,9 +31,13 @@ on:
 # Config files (release-please-config.json, .release-please-manifest.json,
 # x-release-please-version markers) remain in this repository.
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   release:
-    # TODO: pin to a tag or commit SHA (e.g. @v1) for stability once available
+    # TODO: pin to a specific commit SHA or exact tag (e.g. @v1.0.0) for stability once available
     uses: openfga/sdk-generator/.github/workflows/release-please.yml@main
     with:
       bump-type: ${{ inputs.bump-type || 'auto' }}
