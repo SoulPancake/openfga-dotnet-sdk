@@ -1,37 +1,11 @@
 # Changelog
 
-## [Unreleased](https://github.com/openfga/dotnet-sdk/compare/v0.9.1...HEAD)
-
-### Added
-- feat: add ApiExecutor for raw requests (#176)
-- feat: add `FromJson()` methods to `ClientWriteAuthorizationModelRequest` and `ClientCreateStoreRequest` to enable loading from JSON string (#180)
-- feat: report a per call HTTP metric (#173)
-
-### Breaking Changes
-
-> [!WARNING]
-> - **`ApiClient.SendRequestAsync` removed**: If you were calling `SendRequestAsync` directly on `ApiClient`, switch to `ApiExecutor.ExecuteAsync`:
->
->   Before:
->   ```csharp
->   var result = await apiClient.SendRequestAsync<MyRequest, MyResponse>(requestBuilder, "ApiName");
->   ```
->
->   After:
->   ```csharp
->   var result = (await apiClient.ApiExecutor.ExecuteAsync<MyRequest, MyResponse>(requestBuilder, "ApiName")).Data;
->   ```
-
-## v0.9.1
-
-### [0.9.1](https://github.com/openfga/dotnet-sdk/compare/v0.9.0...v0.9.1) (2026-01-26)
+## [0.9.1](https://github.com/openfga/dotnet-sdk/compare/v0.9.0...v0.9.1) (2026-01-26)
 
 - feat: add support for streamed list objects (#156)
 - feat: add support for an interface on the client (#168)
 
-## v0.9.0
-
-### [0.9.0](https://github.com/openfga/dotnet-sdk/compare/v0.8.0...v0.9.0) (2025-12-01)
+## [0.9.0](https://github.com/openfga/dotnet-sdk/compare/v0.8.0...v0.9.0) (2025-12-01)
 
 ### Added
 - feat: add server-side `BatchCheck()` method using `/batch-check` API endpoint
@@ -45,9 +19,7 @@
 ### Fixed
 - fix: ApiToken credentials no longer cause reserved header exception (#146)
 
-## v0.8.0
-
-### [0.8.0](https://github.com/openfga/dotnet-sdk/compare/v0.7.0...v0.8.0) (2025-10-22)
+## [0.8.0](https://github.com/openfga/dotnet-sdk/compare/v0.7.0...v0.8.0) (2025-10-22)
 
 - feat!: add per-request custom headers support
   - `DefaultHeaders` support to `ClientConfiguration` for headers sent with every request
@@ -100,9 +72,7 @@ BREAKING CHANGES:
 
 Note: If you are using the high-level `OpenFgaClient`, no changes are required to your existing code. The new headers functionality is additive via the existing options parameters.
 
-## v0.7.0
-
-### [0.7.0](https://github.com/openfga/dotnet-sdk/compare/v0.6.0...v0.7.0) (2025-10-01)
+## [0.7.0](https://github.com/openfga/dotnet-sdk/compare/v0.6.0...v0.7.0) (2025-10-01)
 
 - feat!: add support for .NET Standard 2.0, .NET 8.0 and .NET 9.0
 
@@ -126,9 +96,7 @@ BREAKING CHANGES:
 | WRITE          | TUPLEOPERATIONWRITE  | TupleOperation |
 | DELETE         | TUPLEOPERATIONDELETE | TupleOperation |
 
-## v0.6.0
-
-### [0.6.0](https://github.com/openfga/dotnet-sdk/compare/v0.5.1...v0.6.0) (2025-09-30)
+## [0.6.0](https://github.com/openfga/dotnet-sdk/compare/v0.5.1...v0.6.0) (2025-09-30)
 
 - feat: add support for `start_time` parameter in `ReadChanges` endpoint
 - feat: update API definitions
@@ -145,23 +113,17 @@ BREAKING CHANGES:
 
 - The `ListStores` method now accepts a body parameter with an optional `Name` to filter the stores. This is a breaking change as it changes the method contract to allow passing in a body with the name.
 
-## v0.5.1
-
-### [0.5.1](https://github.com/openfga/dotnet-sdk/compare/v0.5.0...v0.5.1) (2024-09-09)
+## [0.5.1](https://github.com/openfga/dotnet-sdk/compare/v0.5.0...v0.5.1) (2024-09-09)
 
 - feat: export OpenTelemetry metrics. Refer to the [https://github.com/openfga/dotnet-sdk/blob/main/OpenTelemetry.md](documentation) for more.
 
-## v0.5.0
-
-### [0.5.0](https://github.com/openfga/dotnet-sdk/compare/v0.4.0...v0.5.0) (2024-08-28)
+## [0.5.0](https://github.com/openfga/dotnet-sdk/compare/v0.4.0...v0.5.0) (2024-08-28)
 
 - feat: support consistency parameter (#70)
   Note: To use this feature, you need to be running OpenFGA v1.5.7+ with the experimental flag `enable-consistency-params` enabled.
   See the [v1.5.7 release notes](https://github.com/openfga/openfga/releases/tag/v1.5.7) for details.
 
-## v0.4.0
-
-### [0.4.0](https://github.com/openfga/dotnet-sdk/compare/v0.3.2...v0.4.0) (2024-06-14)
+## [0.4.0](https://github.com/openfga/dotnet-sdk/compare/v0.3.2...v0.4.0) (2024-06-14)
 
 - chore!: remove excluded users from ListUsers response
 
@@ -170,23 +132,17 @@ BREAKING CHANGE:
 This version removes the `ExcludedUsers` field from the `ListUsersResponse` and `ClientListUsersResponse` classes,
 for more details see the [associated API change](https://github.com/openfga/api/pull/171).
 
-## v0.3.2
-
-### [0.3.2](https://github.com/openfga/dotnet-sdk/compare/v0.3.1...v0.3.2) (2024-04-30)
+## [0.3.2](https://github.com/openfga/dotnet-sdk/compare/v0.3.1...v0.3.2) (2024-04-30)
 
 - feat: support the [ListUsers](https://github.com/openfga/rfcs/blob/main/20231214-listUsers-api.md) endpoint (#57)
 - feat: add retries to client credential requests (#51)
 - feat: add support for modular models metadata (#53)
 
-## v0.3.1
-
-### [0.3.1](https://github.com/openfga/dotnet-sdk/compare/v0.3.0...v0.3.1) (2024-02-13)
+## [0.3.1](https://github.com/openfga/dotnet-sdk/compare/v0.3.0...v0.3.1) (2024-02-13)
 
 - fix: use correct content type for token request
 
-## v0.3.0
-
-### [0.3.0](https://github.com/openfga/dotnet-sdk/compare/v0.2.5...v0.3.0) (2023-12-20)
+## [0.3.0](https://github.com/openfga/dotnet-sdk/compare/v0.2.5...v0.3.0) (2023-12-20)
 
 - feat!: initial support for [conditions](https://openfga.dev/blog/conditional-tuples-announcement)
 - feat!: allow overriding storeId per request (#33)
@@ -243,30 +199,22 @@ var fgaClient = new OpenFgaClient(configuration);
 
 Take a look at https://github.com/openfga/dotnet-sdk/commit/fa43463ded102df3f660bae6d741e1a8c1dea090 for more model changes.
 
-## v0.2.5
-
-### [0.2.5](https://github.com/openfga/dotnet-sdk/compare/v0.2.4...v0.2.5) (2023-12-01)
+## [0.2.5](https://github.com/openfga/dotnet-sdk/compare/v0.2.4...v0.2.5) (2023-12-01)
 
 - fix(client): read with no filter (read all tuples)
 - chore(deps): update dependencies
 
-## v0.2.4
-
-### [0.2.4](https://github.com/openfga/dotnet-sdk/compare/v0.2.3...v0.2.4) (2023-05-01)
+## [0.2.4](https://github.com/openfga/dotnet-sdk/compare/v0.2.3...v0.2.4) (2023-05-01)
 
 - fix: client credentials token expiry period was being evaluated as ms instead of seconds, leading to token refreshes on every call
 
-## v0.2.3
-
-### [0.2.3](https://github.com/openfga/dotnet-sdk/compare/v0.2.2...v0.2.3) (2023-04-13)
+## [0.2.3](https://github.com/openfga/dotnet-sdk/compare/v0.2.2...v0.2.3) (2023-04-13)
 
 - fix: changed interface of contextual tuples in `ClientListObjects` to be `ClientTupleKey` instead of `TupleKey`
 - fix: Client `WriteAuthorizationModel` now expects `ClientWriteAuthorizationModelRequest` instead of `WriteAuthorizationModelRequest`
 - chore: changed a few interfaces to expect interfaces instead of classes
 
-## v0.2.2
-
-### [0.2.2](https://github.com/openfga/dotnet-sdk/compare/v0.2.1...v0.2.2) (2023-04-12)
+## [0.2.2](https://github.com/openfga/dotnet-sdk/compare/v0.2.1...v0.2.2) (2023-04-12)
 
 - feat(client): add OpenFgaClient wrapper see [docs](https://github.com/openfga/dotnet-sdk/tree/main#readme), see the `v0.2.1` docs for [the OpenFgaApi docs](https://github.com/openfga/dotnet-sdk/tree/v0.2.1#readme)
 - feat(client): implement `BatchCheck` to check multiple tuples in parallel
@@ -275,15 +223,11 @@ Take a look at https://github.com/openfga/dotnet-sdk/commit/fa43463ded102df3f660
 - chore(config): bump default max retries to `15`
 - fix: retry on 5xx errors
 
-## v0.2.1
-
-### [0.2.1](https://github.com/openfga/dotnet-sdk/compare/v0.2.0...v0.2.1) (2023-01-17)
+## [0.2.1](https://github.com/openfga/dotnet-sdk/compare/v0.2.0...v0.2.1) (2023-01-17)
 
 - chore(deps): upgrade `Microsoft.NET.Test.Sdk` and `Moq` dev dependencies
 
-## v0.2.0
-
-### [0.2.0](https://github.com/openfga/dotnet-sdk/compare/v0.1.2...v0.2.0) (2022-12-14)
+## [0.2.0](https://github.com/openfga/dotnet-sdk/compare/v0.1.2...v0.2.0) (2022-12-14)
 
 Updated to include support for [OpenFGA 0.3.0](https://github.com/openfga/openfga/releases/tag/v0.3.0)
 
@@ -300,9 +244,7 @@ Chore:
 
 - chore(deps): update dev dependencies
 
-## v0.1.2
-
-### [0.1.2](https://github.com/openfga/dotnet-sdk/compare/v0.1.1...v0.1.2) (2022-11-15)
+## [0.1.2](https://github.com/openfga/dotnet-sdk/compare/v0.1.1...v0.1.2) (2022-11-15)
 
 - feat: regenerate from latest API Document, changes include:
   - documentation fixes
@@ -310,29 +252,21 @@ Chore:
 - fix: send authorization header to server when ApiToken used (https://github.com/openfga/sdk-generator/issues/58)
 - chore: update test dependencies
 
-## v0.1.1
-
-### [0.1.1](https://github.com/openfga/dotnet-sdk/compare/v0.1.0...v0.1.1) (2022-10-07)
+## [0.1.1](https://github.com/openfga/dotnet-sdk/compare/v0.1.0...v0.1.1) (2022-10-07)
 
 - Fix for issue in deserializing nullable DateTime (https://github.com/openfga/dotnet-sdk/issues/5)
 
-## v0.1.0
-
-### [0.1.0](https://github.com/openfga/dotnet-sdk/compare/v0.0.3...v0.1.0) (2022-09-29)
+## [0.1.0](https://github.com/openfga/dotnet-sdk/compare/v0.0.3...v0.1.0) (2022-09-29)
 
 - BREAKING: exported interface `TypeDefinitions` is now `WriteAuthorizationModelRequest`
   This is only a breaking change on the SDK, not the API. It was changed to conform to the proto changes in [openfga/api](https://github.com/openfga/api/pull/27).
 - chore(deps): upgrade dependencies
 
-## v0.0.3
-
-### [0.0.3](https://github.com/openfga/dotnet-sdk/compare/v0.0.2...v0.0.3) (2022-09-09)
+## [0.0.3](https://github.com/openfga/dotnet-sdk/compare/v0.0.2...v0.0.3) (2022-09-09)
 
 - Fix for issue in deserializing enums (https://github.com/openfga/sdk-generator/issues/7)
 
-## v0.0.2
-
-### [0.0.2](https://github.com/openfga/dotnet-sdk/compare/v0.0.1...v0.0.2) (2022-08-15)
+## [0.0.2](https://github.com/openfga/dotnet-sdk/compare/v0.0.1...v0.0.2) (2022-08-15)
 
 Support for [ListObjects API]](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
 
@@ -352,9 +286,7 @@ var response = await openFgaApi.ListObjects(body);
 // response.ObjectIds = ["roadmap"]
 ```
 
-## v0.0.1
-
-### [0.0.1](https://github.com/openfga/dotnet-sdk/releases/tag/v0.0.1) (2022-06-17)
+## [0.0.1](https://github.com/openfga/dotnet-sdk/releases/tag/v0.0.1) (2022-06-17)
 
 Initial OpenFGA .NET SDK release
 
